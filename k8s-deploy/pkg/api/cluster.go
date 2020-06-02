@@ -1,9 +1,9 @@
 package api
 
 import (
-	"fate-cloud-agent/pkg/db"
-	"fate-cloud-agent/pkg/job"
-	"fate-cloud-agent/pkg/service"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/job"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/service"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 )
@@ -94,40 +94,11 @@ func (_ *Cluster) getCluster(c *gin.Context) {
 		return
 	}
 
-	ip, err := service.GetNodeIp()
+	cluster.Info, err = service.GetClusterInfo(cluster.Name, cluster.NameSpace)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err})
 		return
 	}
-	port, err := service.GetProxySvcNodePorts(cluster.Name, cluster.NameSpace)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err})
-		return
-	}
-	podList, err := service.GetPodList(cluster.Name, cluster.NameSpace)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err})
-		return
-	}
-
-	if cluster.Info == nil {
-		cluster.Info = make(map[string]interface{})
-	}
-
-	if len(ip) > 0 {
-		cluster.Info["ip"] = ip[len(ip)-1]
-	}
-	if len(port) > 0 {
-		cluster.Info["port"] = port[0]
-	}
-
-	cluster.Info["modules"] = podList
-
-	if cluster.ChartValues != nil {
-
-		cluster.Info["dashboard"] = cluster.ChartValues["host"].(map[string]interface{})["fateboard"]
-	}
-
 
 	if cluster.Config == nil {
 		cluster.Config = make(map[string]interface{})

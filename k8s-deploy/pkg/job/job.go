@@ -2,9 +2,9 @@
 package job
 
 import (
-	"fate-cloud-agent/pkg/db"
-	"fate-cloud-agent/pkg/service"
 	"fmt"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/service"
 	"github.com/rs/zerolog/log"
 	"time"
 )
@@ -207,7 +207,7 @@ func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 		}
 		log.Debug().Str("cluster uuid", cluster.Uuid).Msg("update cluster success")
 
-		err := upgrade(cluster, clusterArgs.Data)
+		err := upgrade(cluster, clusterArgs)
 		if err != nil {
 			job.Result = err.Error()
 			job.Status = db.Failed_j
@@ -246,6 +246,7 @@ func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 		// save cluster to db
 		if job.Status == db.Success_j {
 			cluster.Status = db.Running_c
+			//cluster.
 			cluster.Revision += 1
 			err = db.UpdateByUUID(cluster, job.ClusterId)
 			if err != nil {
@@ -403,7 +404,7 @@ func install(fc *db.Cluster, values []byte) error {
 		fc.ChartName = "fate"
 	}
 
-	result, err := service.Install(fc.NameSpace, fc.Name,fc.ChartName, fc.ChartVersion, v)
+	result, err := service.Install(fc.NameSpace, fc.Name, fc.ChartName, fc.ChartVersion, v)
 	if err != nil {
 		return err
 	}
@@ -418,13 +419,17 @@ func install(fc *db.Cluster, values []byte) error {
 	return nil
 }
 
-func upgrade(fc *db.Cluster, values []byte) error {
+func upgrade(fc *db.Cluster, clusterArgs *ClusterArgs) error {
 
 	err := uninstall(fc)
 	if err != nil {
 		return err
 	}
-	err = install(fc, values)
+
+	fc.ChartName = clusterArgs.ChartName
+	fc.ChartVersion = clusterArgs.ChartVersion
+
+	err = install(fc, clusterArgs.Data)
 	if err != nil {
 		return err
 	}

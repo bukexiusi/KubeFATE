@@ -2,7 +2,7 @@ package cli
 
 import (
 	"errors"
-	"fate-cloud-agent/pkg/job"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/job"
 	"github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -14,9 +14,8 @@ import (
 
 func ClusterCommand() *cli.Command {
 	return &cli.Command{
-		Name: "cluster",
-		Flags: []cli.Flag{
-		},
+		Name:  "cluster",
+		Flags: []cli.Flag{},
 		Subcommands: []*cli.Command{
 			ClusterListCommand(),
 			ClusterInfoCommand(),
@@ -46,16 +45,15 @@ func ClusterListCommand() *cli.Command {
 			cluster := new(Cluster)
 			cluster.all = all
 			log.Debug().Bool("all", all).Msg("all")
-			return getItemList(cluster)
+			return GetItemList(cluster)
 		},
 	}
 }
 
 func ClusterInfoCommand() *cli.Command {
 	return &cli.Command{
-		Name: "describe",
-		Flags: []cli.Flag{
-		},
+		Name:  "describe",
+		Flags: []cli.Flag{},
 		Usage: "Describe a cluster's detail info",
 		Action: func(c *cli.Context) error {
 			var uuid string
@@ -65,7 +63,7 @@ func ClusterInfoCommand() *cli.Command {
 				return errors.New("not uuid")
 			}
 			cluster := new(Cluster)
-			return getItem(cluster, uuid)
+			return GetItem(cluster, uuid)
 		},
 	}
 }
@@ -74,9 +72,8 @@ func ClusterDeleteCommand() *cli.Command {
 	return &cli.Command{
 		Name:    "delete",
 		Aliases: []string{"del"},
-		Flags: []cli.Flag{
-		},
-		Usage: "Delete a cluster",
+		Flags:   []cli.Flag{},
+		Usage:   "Delete a cluster",
 		Action: func(c *cli.Context) error {
 			var uuid string
 			if c.Args().Len() > 0 {
@@ -87,7 +84,7 @@ func ClusterDeleteCommand() *cli.Command {
 
 			cluster := new(Cluster)
 			log.Debug().Str("uuid", uuid).Msg("cluster delete uuid")
-			return deleteItem(cluster, uuid)
+			return DeleteItem(cluster, uuid)
 		},
 	}
 }
@@ -171,7 +168,7 @@ func ClusterInstallCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return postItem(cluster, body)
+			return PostItem(cluster, body)
 		},
 	}
 }
@@ -240,7 +237,7 @@ func ClusterUpdateCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return putItem(cluster, body)
+			return PutItem(cluster, body)
 		},
 	}
 }

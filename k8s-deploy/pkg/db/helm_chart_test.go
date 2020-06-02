@@ -21,6 +21,7 @@ func TestHelmChart_FindHelmByVersion(t *testing.T) {
 	InitConfigForTest()
 	type args struct {
 		version string
+		name    string
 	}
 	tests := []struct {
 		name    string
@@ -32,6 +33,7 @@ func TestHelmChart_FindHelmByVersion(t *testing.T) {
 		{
 			name: "read",
 			args: args{
+				name:    "fate",
 				version: "v1.2.0",
 			},
 			want:    nil,
@@ -40,7 +42,7 @@ func TestHelmChart_FindHelmByVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := FindHelmByNameAndVersion(tt.args.version)
+			got, err := FindHelmByNameAndVersion(tt.args.name, tt.args.version)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HelmChart.FindHelmByNameAndVersion() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -55,7 +57,8 @@ func TestHelmChart_FindHelmByVersion(t *testing.T) {
 func TestChartDeleteAll(t *testing.T) {
 	InitConfigForTest()
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	db, err := ConnectDb()
 	if err != nil {
 		log.Error().Err(err).Msg("ConnectDb")

@@ -7,9 +7,8 @@ import (
 
 func UserCommand() *cli.Command {
 	return &cli.Command{
-		Name: "user",
-		Flags: []cli.Flag{
-		},
+		Name:  "user",
+		Flags: []cli.Flag{},
 		Subcommands: []*cli.Command{
 			UserListCommand(),
 			UserInfoCommand(),
@@ -22,21 +21,19 @@ func UserListCommand() *cli.Command {
 	return &cli.Command{
 		Name:    "list",
 		Aliases: []string{"ls"},
-		Flags: []cli.Flag{
-		},
-		Usage: "List all users",
+		Flags:   []cli.Flag{},
+		Usage:   "List all users",
 		Action: func(c *cli.Context) error {
 			User := new(User)
-			return getItemList(User)
+			return GetItemList(User)
 		},
 	}
 }
 
 func UserInfoCommand() *cli.Command {
 	return &cli.Command{
-		Name: "describe",
-		Flags: []cli.Flag{
-		},
+		Name:  "describe",
+		Flags: []cli.Flag{},
 		Usage: "Describe a user's detail info",
 		Action: func(c *cli.Context) error {
 			var uuid string
@@ -46,7 +43,7 @@ func UserInfoCommand() *cli.Command {
 				return errors.New("not uuid")
 			}
 			User := new(User)
-			return getItem(User, uuid)
+			return GetItem(User, uuid)
 		},
 	}
 }

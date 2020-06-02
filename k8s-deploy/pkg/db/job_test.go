@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"fate-cloud-agent/pkg/utils/logging"
 	"fmt"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/utils/logging"
 	"reflect"
 	"testing"
 	"time"
@@ -194,7 +194,8 @@ func TestJobStatus_MarshalJSON(t *testing.T) {
 func TestJobDeleteAll(t *testing.T) {
 	InitConfigForTest()
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	db, err := ConnectDb()
 	if err != nil {
 		log.Error().Err(err).Msg("ConnectDb")
@@ -253,7 +254,7 @@ func TestJob_timeOut(t *testing.T) {
 				Creator:   tt.fields.Creator,
 				SubJobs:   tt.fields.SubJobs,
 				Status:    tt.fields.Status,
-				timeLimit: tt.fields.timeLimit,
+				TimeLimit: tt.fields.timeLimit,
 			}
 
 			var i int

@@ -1,10 +1,11 @@
 package api
 
 import (
-	"fate-cloud-agent/pkg/db"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // User model
@@ -36,14 +37,23 @@ func generateAdminUser() error {
 	password := viper.GetString("user.password")
 
 	u := db.NewUser(username, password, "")
-	if !u.IsExisted() {
-		uuid, err := db.Save(u)
+	if u.IsExisted() {
+		filter := bson.M{"username": u.Username}
+		n, err := db.DeleteByFilter(u, filter)
 		if err != nil {
-			log.Err(err).Str("userName",username).Msg("user save error")
+			log.Err(err).Str("userName", username).Msg("Delete user by name error")
 			return err
 		}
-		log.Info().Str("userUuid",uuid).Str("userName",username).Msg("user  save success")
+		log.Info().Str("Username", u.Username).Int64("count", n).Msg("user delete success")
 	}
+
+	u = db.NewUser(username, password, "")
+	uuid, err := db.Save(u)
+	if err != nil {
+		log.Err(err).Str("userName", username).Msg("user save error")
+		return err
+	}
+	log.Info().Str("userUuid", uuid).Str("userName", username).Msg("user  save success")
 	return nil
 }
 
@@ -79,7 +89,7 @@ func (*User) setUser(c *gin.Context) {
 		return
 	}
 	user.Uuid = userId
-	err := db.UpdateByUUID(user, userId)
+	err := user.Update()
 	if err != nil {
 		c.JSON(500, gin.H{"error": err})
 	}

@@ -7,9 +7,8 @@ import (
 
 func JobCommand() *cli.Command {
 	return &cli.Command{
-		Name: "job",
-		Flags: []cli.Flag{
-		},
+		Name:  "job",
+		Flags: []cli.Flag{},
 		Subcommands: []*cli.Command{
 			JobListCommand(),
 			JobInfoCommand(),
@@ -21,25 +20,23 @@ func JobCommand() *cli.Command {
 
 func JobListCommand() *cli.Command {
 	return &cli.Command{
-		Name: "list",
+		Name:    "list",
 		Aliases: []string{"ls"},
-		Flags: []cli.Flag{
-		},
-		Usage: "Show job list",
+		Flags:   []cli.Flag{},
+		Usage:   "Show job list",
 		Action: func(c *cli.Context) error {
 			cluster := new(Job)
-			return getItemList(cluster)
+			return GetItemList(cluster)
 		},
 	}
 }
 
 func JobDeleteCommand() *cli.Command {
 	return &cli.Command{
-		Name: "delete",
+		Name:    "delete",
 		Aliases: []string{"del"},
-		Flags: []cli.Flag{
-		},
-		Usage: "Delete a job",
+		Flags:   []cli.Flag{},
+		Usage:   "Delete a job",
 		Action: func(c *cli.Context) error {
 			var uuid string
 			if c.Args().Len() > 0 {
@@ -48,7 +45,7 @@ func JobDeleteCommand() *cli.Command {
 				return errors.New("not uuid")
 			}
 			cluster := new(Job)
-			return deleteItem(cluster, uuid)
+			return DeleteItem(cluster, uuid)
 		},
 	}
 }
@@ -73,7 +70,7 @@ func JobInfoCommand() *cli.Command {
 				return errors.New("not uuid")
 			}
 			Job := new(Job)
-			return getItem(Job, uuid)
+			return GetItem(Job, uuid)
 		},
 	}
 }

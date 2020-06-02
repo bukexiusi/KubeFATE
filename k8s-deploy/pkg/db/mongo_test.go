@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"fate-cloud-agent/pkg/utils/config"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/utils/config"
 	"os"
 	"testing"
 	"time"
@@ -43,7 +43,8 @@ func TestDB_ConnectDb(t *testing.T) {
 	InitConfigForTest()
 
 	db, _ := ConnectDb()
-	ctx, _ = context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 
 	err := db.Client().Ping(ctx, readpref.Primary())
 

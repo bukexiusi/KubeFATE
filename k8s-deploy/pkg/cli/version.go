@@ -3,8 +3,8 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
-	"fate-cloud-agent/pkg/api"
 	"fmt"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/api"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
@@ -14,12 +14,11 @@ import (
 
 func VersionCommand() *cli.Command {
 	return &cli.Command{
-		Name: "version",
-		Flags: []cli.Flag{
-		},
+		Name:  "version",
+		Flags: []cli.Flag{},
 		Usage: "Show kubefate command line and service version",
 		Action: func(c *cli.Context) error {
-			serviceVersion, err := getServiceVersion()
+			serviceVersion, err := GetServiceVersion()
 			if err != nil {
 				fmt.Printf("* kubefate service connection error, %s\r\n", err.Error())
 			} else {
@@ -31,8 +30,8 @@ func VersionCommand() *cli.Command {
 	}
 }
 
-func getServiceVersion() (string, error) {
-	r := &request{
+func GetServiceVersion() (string, error) {
+	r := &Request{
 		Type: "GET",
 		Path: "version",
 		Body: nil,

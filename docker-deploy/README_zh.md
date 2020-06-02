@@ -14,8 +14,6 @@ Compose是用于定义和运行多容器Docker应用程序的工具。通过Comp
 
 两个可以互通的FATE实例，每个实例均包括FATE所有组件。
 
-![](images/images.png)
-
 ### 准备工作
 
 1. 两个主机（物理机或者虚拟机，都是Centos7系统）；
@@ -27,13 +25,9 @@ Compose是用于定义和运行多容器Docker应用程序的工具。通过Comp
 如果运行机没有FATE组件的镜像，可以通过以下命令从Docker Hub获取镜像。FATE镜像的版本`<version>`可在[release页面](https://github.com/FederatedAI/FATE/releases)上查看，其中serving镜像的版本信息在[这个页面](https://github.com/FederatedAI/FATE-Serving/releases)：
 
 ```bash
-$ docker pull federatedai/egg:<version>-release
+$ docker pull federatedai/eggroll:<version>-release
 $ docker pull federatedai/fateboard:<version>-release
-$ docker pull federatedai/meta-service:<version>-release
 $ docker pull federatedai/python:<version>-release
-$ docker pull federatedai/roll:<version>-release
-$ docker pull federatedai/proxy:<version>-release
-$ docker pull federatedai/federation:<version>-release
 $ docker pull federatedai/serving-server:<version>-release
 $ docker pull federatedai/serving-proxy:<version>-release
 $ docker pull redis:5
@@ -43,20 +37,17 @@ $ docker pull mysql:8
 对于中国的用户可以用以下方式下载镜像包：
 ```bash
 $ wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_<version>-images.tar.gz 
-$ docker load fate_<version>-images.tar.gz 
+$ docker load --input fate_<version>-images.tar.gz 
 ```
 
 检查所有镜像是否下载成功。
 ```bash
 $ docker images
 REPOSITORY                         TAG 
-federatedai/egg                    <version>-release
+federatedai/eggroll                <version>-release
 federatedai/fateboard              <version>-release
-federatedai/meta-service           <version>-release
 federatedai/python                 <version>-release
-federatedai/roll                   <version>-release
-federatedai/proxy                  <version>-release
-federatedai/federation             <version>-release
+federatedai/client                 <version>-release
 federatedai/serving-server         <version>-release
 federatedai/serving-proxy          <version>-release
 redis                              5
@@ -139,19 +130,26 @@ $ docker ps
 
 ```
 CONTAINER ID        IMAGE                                     COMMAND                  CREATED             STATUS              PORTS                                 NAMES
-f8ae11a882ba        fatetest/fateboard:<version>-release      "/bin/sh -c 'cd /dat…"   5 days ago          Up 5 days           0.0.0.0:8080->8080/tcp                confs-10000_fateboard_1
-d72995355962        fatetest/python:<version>-release         "/bin/bash -c 'sourc…"   5 days ago          Up 5 days           9360/tcp, 9380/tcp                    confs-10000_python_1
-dffc70fc68ac        fatetest/egg:<version>-release            "/bin/sh -c 'cd /dat…"   7 days ago          Up 7 days           7778/tcp, 7888/tcp, 50001-50004/tcp   confs-10000_egg_1
-dc23d75692b0        fatetest/roll:<version>-release           "/bin/sh -c 'cd roll…"   7 days ago          Up 7 days           8011/tcp                              confs-10000_roll_1
-7e52b1b06d1a        fatetest/meta-service:<version>-release   "/bin/sh -c 'java -c…"   7 days ago          Up 7 days           8590/tcp                              confs-10000_meta-service_1
-50a6323f5cb8        fatetest/proxy:<version>-release          "/bin/sh -c 'cd /dat…"   7 days ago          Up 7 days           0.0.0.0:9370->9370/tcp                confs-10000_proxy_1
-4526f8e57004        redis:5                                   "docker-entrypoint.s…"   7 days ago          Up 7 days           6379/tcp                              confs-10000_redis_1
-586f3f2fe191        fatetest/federation:<version>-release     "/bin/sh -c 'cd /dat…"   7 days ago          Up 7 days           9394/tcp                              confs-10000_federation_1
-ec434dcbbff1        mysql:8                                   "docker-entrypoint.s…"   7 days ago          Up 7 days           3306/tcp, 33060/tcp                   confs-10000_mysql_1
-68b1d6c68b6c        federatedai/serving-proxy:<version>-release    "/bin/sh -c 'java -D…"   32 hours ago        Up 32 hours         0.0.0.0:8059->8059/tcp, 0.0.0.0:8869->8869/tcp, 8879/tcp   serving-10000_serving-proxy_1
-7937ecf2974e        redis:5                                    "docker-entrypoint.s…"   32 hours ago        Up 32 hours         6379/tcp                                                   serving-10000_redis_1
-00a8d98021a6        federatedai/serving-server:<version>-release   "/bin/sh -c 'java -c…"   32 hours ago        Up 32 hours         0.0.0.0:8000->8000/tcp                                     serving-10000_serving-server_1
-luke@luke-machine:~$ 
+69b8b36af395        federatedai/eggroll:<tag>          "bash -c 'java -Dlog…"   2 hours ago         Up 2 hours    
+      0.0.0.0:9371->9370/tcp                                                   confs-exchange_exchange_1
+71cd792ba088        federatedai/serving-proxy:<tag>    "/bin/sh -c 'java -D…"   2 hours ago         Up 2 hours    
+      0.0.0.0:8059->8059/tcp, 0.0.0.0:8869->8869/tcp, 8879/tcp                 serving-10000_serving-proxy_1
+2c79047918c6        federatedai/serving-server:<tag>   "/bin/sh -c 'java -c…"   2 hours ago         Up 2 hours    
+      0.0.0.0:8000->8000/tcp                                                   serving-10000_serving-server_1
+b1a5384a55dc        redis:5                            "docker-entrypoint.s…"   2 hours ago         Up 2 hours    
+      6379/tcp                                                                 serving-10000_redis_1
+321c4e29313b        federatedai/client:<tag>           "/bin/sh -c 'sleep 5…"   2 hours ago         Up 2 hours    
+      0.0.0.0:20000->20000/tcp                                                 confs-10000_client_1
+c1b3190126ab        federatedai/fateboard:<tag>        "/bin/sh -c 'java -D…"   2 hours ago         Up 2 hours    
+      0.0.0.0:8080->8080/tcp                                                   confs-10000_fateboard_1
+cc679996e79f        federatedai/python:<tag>           "/bin/sh -c 'sleep 5…"   2 hours ago         Up 2 hours    
+      0.0.0.0:8484->8484/tcp, 0.0.0.0:9360->9360/tcp, 0.0.0.0:9380->9380/tcp   confs-10000_python_1
+c79800300000        federatedai/eggroll:<tag>          "bash -c 'java -Dlog…"   2 hours ago         Up 2 hours    
+      4671/tcp                                                                 confs-10000_nodemanager_1
+ee2f1c3aad99        federatedai/eggroll:<tag>          "bash -c 'java -Dlog…"   2 hours ago         Up 2 hours    
+      4670/tcp                                                                 confs-10000_clustermanager_1
+a1f784882d20        federatedai/eggroll:<tag>          "bash -c 'java -Dlog…"   2 hours ago         Up 2 hours                  0.0.0.0:9370->9370/tcp                                                   confs-10000_rollsite_1
+2b4526e6d534        mysql:8                            "docker-entrypoint.s…"   2 hours ago         Up 2 hours                  3306/tcp, 33060/tcp                                                      confs-10000_mysql_1
 ```
 
 ####  验证部署
@@ -296,6 +294,15 @@ output：
 }
 ```
 
+###### 查看训练任务状态
+`$  python fate_flow_client.py -f query_task -j 202003060553168191842 | grep f_status`
+
+output:
+```
+"f_status": "success",
+"f_status": "success",
+```
+
 ###### 修改加载模型的配置
 `$ vi examples/publish_load_model.json`
 
@@ -320,6 +327,23 @@ output：
 
 ###### 加载模型
 `$ python fate_flow_client.py -f load -c examples/publish_load_model.json`
+
+output:
+```
+{
+    "data": {
+        "guest": {
+            "9999": 0
+        },
+        "host": {
+            "10000": 0
+        }
+    },
+    "jobId": "202005120554339112925",
+    "retcode": 0,
+    "retmsg": "success"
+}
+```
 
 ###### 修改绑定模型的配置
 `$ vi examples/bind_model_service.json`
@@ -348,15 +372,19 @@ output：
 ###### 绑定模型
 `$ python fate_flow_client.py -f bind -c examples/bind_model_service.json`
 
+output:
+```
+{
+    "retcode": 0,
+    "retmsg": "service id is test"
+}
+```
+
 ###### 在线测试
 发送以下信息到{SERVING_SERVICE_IP}:8059/federation/v1/inference
 
 ```
-# HTTP Method：POST
-# HEADERs:
-#   - Content-Type：application/json
-
-{
+$ curl -X POST -H 'Content-Type: application/json' -i 'http://192.168.7.1:8059/federation/v1/inference' --data '{
   "head": {
     "serviceId": "test"
   },
@@ -374,7 +402,7 @@ output：
       "x9": -0.733474,
     }
   }
-}
+}'
 ```
 
 output:
